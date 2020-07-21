@@ -6,7 +6,6 @@ import fileDownload from 'react-file-download';
 import { Collapse } from 'antd';
 import { Spin } from 'antd';
 
-//const { Panel } = Collapse;
 
 const normFile = (e) => {
     // console.log(key);
@@ -32,18 +31,22 @@ const FormGeneric = () => {
     const formRef = React.createRef();
     const getFile = (number) =>{
 
-        fetch(number===1?"http://localhost:3100/getFile":"http://localhost:3100/getFileAnexo")
+        fetch(number===1?"http://e-fact.com.gt:5050/getFile":"http://e-fact.com.gt:5050/getFileAnexo")
         .then(resp => resp.blob())
         .then(resp => {
             fileDownload(resp, number===1?"CartaSolicitud.pdf":"DocAnexo.docx"); //This will download the file in browser.
         })
         .catch(err => console.log(err));
     }
-    const openNotificationWithIcon = (type,title,description) => {
+    const openNotificationWithIcon = (type,title,description,reload) => {
         notification[type]({
           message: title,
           description: description,
         });
+        if(reload){
+            window.location.reload();
+        }
+        
       };
     const onFinish = async values => {
         
@@ -61,7 +64,7 @@ const FormGeneric = () => {
         });
         const request = new XMLHttpRequest();
     
-        request.open("POST", "http://localhost:3100/saveFile");
+        request.open("POST", "http://e-fact.com.gt:5050/saveFile");
         request.setRequestHeader("enctype", 'multipart/form-data');
         request.setRequestHeader('Authorization', values.dpi);
         request.send(formData);
@@ -80,7 +83,7 @@ const FormGeneric = () => {
                 const {dpiFile,passportFile,collegiateFile,
                     affidavitFile,applicationLetterFile,attachedFormFile, ...othersValues} = values;
                 console.log({ ...paths, ...othersValues});
-                fetch('http://localhost:3100/Survey',{
+                fetch('http://e-fact.com.gt:5050/Survey',{
                     method:'post',
                     body: JSON.stringify({code:0, ...paths, ...othersValues}),
                     headers: {'Content-Type': 'application/json'}
@@ -89,18 +92,19 @@ const FormGeneric = () => {
                 .then(resp => {
                     console.log(resp);
                     setFormState({loading: false});
-                    formRef.current.resetFields();
-                    openNotificationWithIcon('success',"Exito","Informacion enviada correctamente, si desea puede enviar un nuevo formulario.");
+                    openNotificationWithIcon('success',"Exito","Informacion enviada correctamente, si desea puede enviar un nuevo formulario.",true);
+                    
+                    
                 })
                 .catch(err => {
                     setFormState({loading: false});
-                    openNotificationWithIcon('error',"Error","Ha ocurrido un error al tratar de enviar tu informacion, por favor intenta de nuevo.");
+                    openNotificationWithIcon('error',"Error","Ha ocurrido un error al tratar de enviar tu informacion, por favor intenta de nuevo.",false);
 
                     console.log(err)
                 });
             } else {        
                 setFormState({loading: false});
-                openNotificationWithIcon('error',"Error","Ha ocurrido un error al tratar de subir tus documentos, por favor intenta de nuevo.");
+                openNotificationWithIcon('error',"Error","Ha ocurrido un error al tratar de subir tus documentos, por favor intenta de nuevo.",false);
 
                 console.log(request);
                 console.log("Error " + request.status + " occurred when trying to upload your file.<br>");
@@ -113,7 +117,7 @@ const FormGeneric = () => {
     
       const onFinishFailed = errorInfo => {
         console.log('Failed:', errorInfo);
-        openNotificationWithIcon('error',"Informacion incompleta","Por favor revisa la informacion ingresada, corrobara que has subido todos los documentos.");
+        openNotificationWithIcon('error',"Informacion incompleta","Por favor revisa la informacion ingresada, corrobara que has subido todos los documentos.",false);
       };
     return (
     <>
