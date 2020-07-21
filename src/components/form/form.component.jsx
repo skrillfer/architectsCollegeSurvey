@@ -29,12 +29,13 @@ const layout = {
   
 const FormGeneric = () => {
     const [formState, setFormState] = useState({loading:false});
+    const formRef = React.createRef();
     const getFile = (number) =>{
 
         fetch(number===1?"http://localhost:3100/getFile":"http://localhost:3100/getFileAnexo")
         .then(resp => resp.blob())
         .then(resp => {
-            fileDownload(resp, "profilepic.docx"); //This will download the file in browser.
+            fileDownload(resp, number===1?"CartaSolicitud.pdf":"DocAnexo.docx"); //This will download the file in browser.
         })
         .catch(err => console.log(err));
     }
@@ -88,7 +89,8 @@ const FormGeneric = () => {
                 .then(resp => {
                     console.log(resp);
                     setFormState({loading: false});
-                    openNotificationWithIcon('success',"Exito","Informacion enviada correctamente.");
+                    formRef.current.resetFields();
+                    openNotificationWithIcon('success',"Exito","Informacion enviada correctamente, si desea puede enviar un nuevo formulario.");
                 })
                 .catch(err => {
                     setFormState({loading: false});
@@ -140,6 +142,7 @@ const FormGeneric = () => {
             </Row>
             <br/><br/>
             <Form
+            ref={formRef}
             {...layout}
             name="basic"
             // initialValues={{ remember: true }}
