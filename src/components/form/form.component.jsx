@@ -31,9 +31,11 @@ const FormGeneric = () => {
     const formRef = React.createRef();
     const getFile = (number) =>{
 
-        fetch(number===1?"http://e-fact.com.gt:5050/getFile":"http://e-fact.com.gt:5050/getFileAnexo")
-        .then(resp => resp.blob())
+        fetch("http://localhost:5050/getFile")
+        .then(resp => {console.log(resp);return resp.blob();})
         .then(resp => {
+            // var file = window.URL.createObjectURL(resp);
+            // window.location.assign(file);
             fileDownload(resp, number===1?"CartaSolicitud.pdf":"DocAnexo.docx"); //This will download the file in browser.
         })
         .catch(err => console.log(err));
@@ -64,7 +66,7 @@ const FormGeneric = () => {
         });
         const request = new XMLHttpRequest();
     
-        request.open("POST", "http://e-fact.com.gt:5050/saveFile");
+        request.open("POST", "http://localhost:5050/saveFile");
         request.setRequestHeader("enctype", 'multipart/form-data');
         request.setRequestHeader('Authorization', values.dpi);
         request.send(formData);
@@ -83,7 +85,7 @@ const FormGeneric = () => {
                 const {dpiFile,passportFile,collegiateFile,
                     affidavitFile,applicationLetterFile,attachedFormFile, ...othersValues} = values;
                 console.log({ ...paths, ...othersValues});
-                fetch('http://e-fact.com.gt:5050/Survey',{
+                fetch('http://localhost:5050/Survey',{
                     method:'post',
                     body: JSON.stringify({code:0, ...paths, ...othersValues}),
                     headers: {'Content-Type': 'application/json'}
